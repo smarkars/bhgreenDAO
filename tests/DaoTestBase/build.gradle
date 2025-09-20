@@ -1,11 +1,42 @@
-apply plugin: 'java'
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        mavenCentral()
+    }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
-dependencies {
-    compile project(':DaoCore')
-    compileOnly 'com.google.android:android:4.1.1.4'
+    dependencies {
+        classpath rootProject.ext.dep.androidPlugin
+    }
 }
 
-uploadArchives.enabled = false
+apply plugin: 'com.android.library'
+
+android {
+    lintOptions {
+        abortOnError false
+    }
+    namespace 'org.greenrobot.greendao.test'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+        }
+    }
+}
+
+dependencies {
+    implementation project(':DaoCore')
+    compileOnly 'com.google.android:android:4.1.1.4'
+}

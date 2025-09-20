@@ -18,18 +18,19 @@ package org.greenrobot.greendao.database;
 
 import android.database.Cursor;
 import android.database.SQLException;
-import net.sqlcipher.database.SQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import java.io.IOException;
 
 public class EncryptedDatabase implements Database {
-    private final SQLiteDatabase delegate;
+    private final SupportSQLiteDatabase delegate;
 
-    public EncryptedDatabase(SQLiteDatabase delegate) {
+    public EncryptedDatabase(SupportSQLiteDatabase delegate) {
         this.delegate = delegate;
     }
 
     @Override
     public Cursor rawQuery(String sql, String[] selectionArgs) {
-        return delegate.rawQuery(sql, selectionArgs);
+        return delegate.query(sql, selectionArgs);
     }
 
     @Override
@@ -79,7 +80,11 @@ public class EncryptedDatabase implements Database {
 
     @Override
     public void close() {
-        delegate.close();
+        try {
+            delegate.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error closing database", e);
+        }
     }
 
     @Override
@@ -87,7 +92,7 @@ public class EncryptedDatabase implements Database {
         return delegate;
     }
 
-    public SQLiteDatabase getSQLiteDatabase() {
+    public SupportSQLiteDatabase getSQLiteDatabase() {
         return delegate;
     }
 }

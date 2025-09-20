@@ -1,17 +1,64 @@
-apply plugin: 'java'
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        mavenCentral()
+    }
 
-group = 'org.greenrobot'
-archivesBaseName = 'greendao'
-version = rootProject.version
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+    dependencies {
+        classpath rootProject.ext.dep.androidPlugin
+    }
+}
+
+apply plugin: 'com.android.library'
 
 repositories {
     mavenCentral()
 }
 
+android {
+    namespace 'org.greenrobot.greendao'
+    lintOptions {
+        abortOnError false
+    }
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+        }
+    }
+}
+
+// START: New JAR task
+android.libraryVariants.all { variant ->
+    def name = variant.name.capitalize()
+    def jarTask = tasks.register("jar${name}", Jar) {
+        from variant.javaCompileProvider.get().destinationDirectory
+        archiveClassifier.set(name.toLowerCase())
+    }
+    artifacts {
+        archives jarTask
+    }
+}
+// END: New JAR task
+
+group = 'org.greenrobot'
+archivesBaseName = 'greendao'
+version = rootProject.version
+
 dependencies {
-    compile project(':greendao-api')
+    api project(':greendao-api')
     compileOnly 'com.google.android:android:4.1.1.4'
     compileOnly 'com.google.android:android-test:4.1.1.4'
     compileOnly 'com.google.android:annotations:4.1.1.4'
@@ -19,44 +66,46 @@ dependencies {
 
     compileOnly 'io.reactivex:rxjava:1.1.8'
 
-    compileOnly files('libs/sqlcipher.jar')
+    implementation 'net.zetetic:sqlcipher-android:4.10.0@aar'
+    implementation 'androidx.sqlite:sqlite:2.2.0'
 }
 
-apply from: rootProject.file("gradle/publish.gradle")
+//apply from: rootProject.file("gradle/publish.gradle")
 
-javadoc {
-    failOnError = false
-    title = " greenDAO ${version} API"
-    options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2011-2020 <a href="https://greenrobot.org/">greenrobot.org</a>. All Rights Reserved.</i>'
+//javadoc {
+//    failOnError = false
+//    title = " greenDAO ${version} API"
+//    options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2011-2020 <a href="https://greenrobot.org/">greenrobot.org</a>. All Rights Reserved.</i>'
+//
+//    excludes = ['org/greenrobot/dao/internal', 'org/greenrobot/dao/Internal*']
+//    def srcApi = project(':greendao-api').file('src/main/java/')
+//    if (!srcApi.directory) throw new GradleScriptException("Not a directory: ${srcApi}", null)
+//    source += srcApi
+//    doLast {
+//        copy {
+//            from '../javadoc-style'
+//            into "build/docs/javadoc/"
+//        }s
+//    }
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from 'build/docs/javadoc'
+//}
+//
+//task sourcesJar(type: Jar) {
+//    from sourceSets.main.allSource
+//    classifier = 'sources'
+//}
+//
+//artifacts {
+//    // jar added by Java plugin.
+//    archives javadocJar
+//    archives sourcesJar
+//}
 
-    excludes = ['org/greenrobot/dao/internal', 'org/greenrobot/dao/Internal*']
-    def srcApi = project(':greendao-api').file('src/main/java/')
-    if (!srcApi.directory) throw new GradleScriptException("Not a directory: ${srcApi}", null)
-    source += srcApi
-    doLast {
-        copy {
-            from '../javadoc-style'
-            into "build/docs/javadoc/"
-        }
-    }
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-artifacts {
-    // jar added by Java plugin.
-    archives javadocJar
-    archives sourcesJar
-}
-
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -76,3 +125,4 @@ uploadArchives {
         }
     }
 }
+*/

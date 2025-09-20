@@ -1,6 +1,6 @@
 package org.greenrobot.greendao.unittest;
 
-import org.greenrobot.greendao.daotest.dummyapp.BuildConfig;
+
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.query.Query;
 import org.junit.Before;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 16)
+@Config(sdk = 16)
 public class MinimalEntityTest {
 
     private DaoSession daoSession;

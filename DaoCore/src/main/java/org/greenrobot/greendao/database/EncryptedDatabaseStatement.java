@@ -17,12 +17,13 @@
 package org.greenrobot.greendao.database;
 
 
-import net.sqlcipher.database.SQLiteStatement;
+import androidx.sqlite.db.SupportSQLiteStatement;
+import java.io.IOException;
 
 public class EncryptedDatabaseStatement implements DatabaseStatement {
-    private final SQLiteStatement delegate;
+    private final SupportSQLiteStatement delegate;
 
-    public EncryptedDatabaseStatement(SQLiteStatement delegate) {
+    public EncryptedDatabaseStatement(SupportSQLiteStatement delegate) {
         this.delegate = delegate;
     }
 
@@ -73,7 +74,11 @@ public class EncryptedDatabaseStatement implements DatabaseStatement {
 
     @Override
     public void close() {
-        delegate.close();
+        try {
+            delegate.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error closing statement", e);
+        }
     }
 
     @Override

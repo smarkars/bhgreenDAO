@@ -6,7 +6,7 @@ version = rootProject.version
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-apply from: rootProject.file("gradle/publish.gradle")
+//apply from: rootProject.file("gradle/publish.gradle")
 
 javadoc {
     failOnError = false
@@ -21,13 +21,13 @@ javadoc {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 artifacts {
@@ -36,6 +36,7 @@ artifacts {
     archives sourcesJar
 }
 
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -55,3 +56,4 @@ uploadArchives {
         }
     }
 }
+*/

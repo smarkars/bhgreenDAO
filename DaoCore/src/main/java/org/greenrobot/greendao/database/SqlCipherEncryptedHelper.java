@@ -2,58 +2,74 @@ package org.greenrobot.greendao.database;
 
 import android.content.Context;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory;
 
-class SqlCipherEncryptedHelper extends SQLiteOpenHelper implements DatabaseOpenHelper.EncryptedHelper {
+class SqlCipherEncryptedHelper implements DatabaseOpenHelper.EncryptedHelper {
 
     private final DatabaseOpenHelper delegate;
+    private final Context context;
+    private final String name;
+    private final int version;
+    private final boolean loadLibs;
+
+    private SupportSQLiteOpenHelper supportSQLiteOpenHelper;
 
     public SqlCipherEncryptedHelper(DatabaseOpenHelper delegate, Context context, String name, int version, boolean loadLibs) {
-        super(context, name, null, version);
         this.delegate = delegate;
+        this.context = context;
+        this.name = name;
+        this.version = version;
+        this.loadLibs = loadLibs;
         if (loadLibs) {
-            SQLiteDatabase.loadLibs(context);
+            System.loadLibrary("sqlcipher");
         }
     }
 
-    private Database wrap(SQLiteDatabase sqLiteDatabase) {
-        return new EncryptedDatabase(sqLiteDatabase);
-    }
+    private SupportSQLiteOpenHelper getSupportSQLiteOpenHelper(char[] password) {
+        if (supportSQLiteOpenHelper == null) {
+            SupportSQLiteOpenHelper.Configuration configuration = SupportSQLiteOpenHelper.Configuration.builder(context)
+                    .name(name)
+                    .callback(new SupportSQLiteOpenHelper.Callback(version) {
+                        @Override
+                        public void onCreate(SupportSQLiteDatabase db) {
+                            delegate.onCreate(new EncryptedDatabase(db));
+                        }
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        delegate.onCreate(wrap(db));
-    }
+                        @Override
+                        public void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {
+                            delegate.onUpgrade(new EncryptedDatabase(db), oldVersion, newVersion);
+                        }
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        delegate.onUpgrade(wrap(db), oldVersion, newVersion);
-    }
-
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        delegate.onOpen(wrap(db));
+                        @Override
+                        public void onOpen(SupportSQLiteDatabase db) {
+                            delegate.onOpen(new EncryptedDatabase(db));
+                        }
+                    })
+                    .build();
+            supportSQLiteOpenHelper = new net.zetetic.database.sqlcipher.SupportOpenHelperFactory(new String(password).getBytes()).create(configuration);
+        }
+        return supportSQLiteOpenHelper;
     }
 
     @Override
     public Database getEncryptedReadableDb(String password) {
-        return wrap(getReadableDatabase(password));
+        return new EncryptedDatabase(getSupportSQLiteOpenHelper(password.toCharArray()).getReadableDatabase());
     }
 
     @Override
     public Database getEncryptedReadableDb(char[] password) {
-        return wrap(getReadableDatabase(password));
+        return new EncryptedDatabase(getSupportSQLiteOpenHelper(password).getReadableDatabase());
     }
 
     @Override
     public Database getEncryptedWritableDb(String password) {
-        return wrap(getWritableDatabase(password));
+        return new EncryptedDatabase(getSupportSQLiteOpenHelper(password.toCharArray()).getWritableDatabase());
     }
 
     @Override
     public Database getEncryptedWritableDb(char[] password) {
-        return wrap(getWritableDatabase(password));
+        return new EncryptedDatabase(getSupportSQLiteOpenHelper(password).getWritableDatabase());
     }
-
 }

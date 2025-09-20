@@ -248,6 +248,11 @@ final public class FastCursor implements Cursor {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void setExtras(Bundle extras) {
+        // Do nothing
+    }
+
     /** Since API level 11 */
     public int getType(int columnIndex) {
         throw new UnsupportedOperationException();

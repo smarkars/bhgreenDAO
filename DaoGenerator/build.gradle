@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.freemarker:freemarker:2.3.29'
+    implementation 'org.freemarker:freemarker:2.3.29'
     testImplementation 'junit:junit:4.12'
 }
 
@@ -39,7 +39,7 @@ test {
     }
 }
 
-apply from: rootProject.file("gradle/publish.gradle")
+//apply from: rootProject.file("gradle/publish.gradle")
 
 javadoc {
     failOnError = false
@@ -56,13 +56,13 @@ javadoc {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 artifacts {
@@ -71,6 +71,7 @@ artifacts {
     archives sourcesJar
 }
 
+/*
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -90,3 +91,4 @@ uploadArchives {
         }
     }
 }
+*/

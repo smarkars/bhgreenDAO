@@ -13,6 +13,7 @@ buildscript {
 apply plugin: 'com.android.application'
 
 repositories {
+    mavenCentral()
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
@@ -20,10 +21,11 @@ repositories {
 
 dependencies {
     implementation project(':tests:DaoTestBase')
-    androidTestImplementation 'org.greenrobot:essentials:3.0.0-SNAPSHOT'
+    androidTestImplementation 'org.greenrobot:essentials:3.0.0-rc1'
 }
 
 android {
+    namespace 'org.greenrobot.greendao.perftest'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     // To use deprecated test classes on SDK 28+. https://developer.android.com/training/testing/set-up-project
@@ -31,10 +33,10 @@ android {
     useLibrary 'android.test.base'
 
     defaultConfig {
-        minSdkVersion 5
+        minSdkVersion rootProject.ext.minSdkVersion
         testApplicationId "org.greenrobot.greendao.perftest"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 }
 
-uploadArchives.enabled = false
+//uploadArchives.enabled = false

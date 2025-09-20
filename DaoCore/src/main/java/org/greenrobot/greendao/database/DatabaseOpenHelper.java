@@ -140,7 +140,7 @@ public abstract class DatabaseOpenHelper extends SQLiteOpenHelper {
     private EncryptedHelper checkEncryptedHelper() {
         if (encryptedHelper == null) {
             try {
-                Class.forName("net.sqlcipher.database.SQLiteOpenHelper");
+                Class.forName("net.zetetic.database.sqlcipher.SupportOpenHelperFactory");
             } catch (ClassNotFoundException e) {
                 throw new DaoException("Using an encrypted database requires SQLCipher, " +
                         "make sure to add it to dependencies: " +
